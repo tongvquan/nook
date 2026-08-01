@@ -1,0 +1,44 @@
+services:
+  db:
+    build:
+      dockerfile: /docker/mysql/Dockerfile
+    container_name: nook-db
+    environment:
+      MYSQL_DATABASE: nook
+      MYSQL_USER: quan123
+      MYSQL_PASSWORD: quan123
+      MYSQL_RANDOM_ROOT_PASSWORD: "1"
+    volumes:
+      - db:/var/lib/mysql
+    ports:
+      - 3306:3306
+    restart: always
+
+  redis:
+    build:
+      context: /docker/redis
+      dockerfile: Dockerfile
+    container_name: nook-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+
+  kafka:
+    build:
+      dockerfile: /docker/kafka/Dockerfile
+    container_name: nook-kafka
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@localhost:9093
+      KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LOG_DIRS: /tmp/kraft-combined-logs
+
+volumes:
+  db:
+  redis-data:
