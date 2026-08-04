@@ -3,7 +3,7 @@ buildscript {
 		mavenCentral()
 	}
 	dependencies {
-		classpath "org.flywaydb:flyway-mysql:11.17.0"
+		classpath "org.flywaydb:flyway-database-postgresql:11.17.0"
 		classpath "com.smartnews:jpa-entity-generator:0.99.9"
 	}
 }
@@ -12,8 +12,10 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '4.1.0'
 	id 'io.spring.dependency-management' version '1.1.7'
-	id 'com.diffplug.spotless' version '6.25.0' //spotless
+	id 'com.diffplug.spotless' version '6.25.0'
 	id("org.flywaydb.flyway") version "11.17.0"
+	id 'jacoco'
+	id 'org.sonarqube' version '7.3.1.8318'
 }
 
 apply plugin: com.smartnews.jpa_entity_generator.gradle.EntityGenPlugin
@@ -36,17 +38,13 @@ java {
 // Spotless config
 spotless {
 	java {
-		// Định nghĩa các tệp tin sẽ được áp dụng định dạng
+		// Format type
+		palantirJavaFormat()
 		target 'src/main/java/**/*.java', 'src/test/java/**/*.java'
-
-		// Sử dụng chuẩn Google Java Format (bản 1.17.0 chạy tốt trên Java 17)
-		googleJavaFormat('1.17.0')
-
-		// Tự động xóa các import thừa không sử dụng
+		trimTrailingWhitespace()
 		removeUnusedImports()
-
-		// Tự động sắp xếp lại thứ tự các câu lệnh import
 		importOrder()
+		endWithNewline()
 	}
 }
 
@@ -65,10 +63,13 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-security-oauth2-client'
 	implementation 'org.springframework.boot:spring-boot-starter-webmvc'
 	compileOnly 'org.projectlombok:lombok'
-	runtimeOnly 'com.mysql:mysql-connector-j'
+	runtimeOnly 'org.postgresql:postgresql'
 	annotationProcessor 'org.projectlombok:lombok'
 	implementation 'org.springframework.boot:spring-boot-starter-flyway'
-	implementation 'org.flywaydb:flyway-mysql'
+	implementation 'org.flywaydb:flyway-database-postgresql'
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.0")
+
 	testImplementation 'org.springframework.boot:spring-boot-starter-flyway-test'
 	testImplementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch-test'
 	testImplementation 'org.springframework.boot:spring-boot-starter-data-jpa-test'
@@ -80,14 +81,15 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-security-test'
 	testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
 	testCompileOnly 'org.projectlombok:lombok'
+	testImplementation 'org.springframework.boot:spring-boot-starter-actuator-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 	testAnnotationProcessor 'org.projectlombok:lombok'
 }
 
 flyway {
-	url = 'jdbc:mysql://localhost:3307/nook'
-	user = 'quan123'
-	password = 'quan123'
+	url = System.getenv('FLYWAY_URL') ?: System.getenv('SPRING_DATASOURCE_URL') ?: 'jdbc:postgresql://localhost:5434/nook'
+	user = System.getenv('FLYWAY_USER') ?: System.getenv('SPRING_DATASOURCE_USERNAME') ?: 'quan123'
+	password = System.getenv('FLYWAY_PASSWORD') ?: System.getenv('SPRING_DATASOURCE_PASSWORD') ?: 'quan123'
 	locations = ['filesystem:src/main/resources/db/migration']
 	cleanDisabled = false
 }
@@ -95,4 +97,59 @@ flyway {
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+jacocoTestReport {
+	dependsOn test
+	reports {
+		xml.required = true
+		html.required = true
+	}
+}
+
+// Đọc SONAR_TOKEN từ biến môi trường hoặc file .env
+def localEnv = new Properties()
+def localEnvFile = rootProject.file('.env')
+
+if (localEnvFile.exists()) {
+	localEnvFile.withInputStream {
+		localEnv.load(it)
+	}
+}
+
+def sonarToken =
+		System.getenv('SONAR_TOKEN')
+				?: localEnv.getProperty('SONAR_TOKEN')
+
+sonar {
+	properties {
+		property 'sonar.projectKey', 'nook'
+		property 'sonar.projectName', 'Nook'
+		property 'sonar.host.url', 'http://localhost:9000'
+
+		if (sonarToken) {
+			property 'sonar.token', sonarToken
+		}
+
+		property(
+				'sonar.coverage.jacoco.xmlReportPaths',
+				layout.buildDirectory
+						.file('reports/jacoco/test/jacocoTestReport.xml')
+						.get()
+						.asFile
+						.absolutePath
+		)
+	}
+}
+
+tasks.named('sonar') {
+	dependsOn jacocoTestReport
+
+	doFirst {
+		if (!sonarToken) {
+			throw new GradleException(
+					'Không tìm thấy SONAR_TOKEN trong biến môi trường hoặc file .env'
+			)
+		}
+	}
 }
