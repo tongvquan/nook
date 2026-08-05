@@ -1,6 +1,62 @@
 # Nook
 
-## 1. Start Docker containers
+## 1. Project structure
+
+The project follows a clean architecture style. Business rules stay near the center, while framework and infrastructure details stay in adapters.
+
+```text
+src/main/java/com/tongquan/nook
+|-- domain
+|-- application
+|   |-- port
+|   |   |-- in
+|   |   `-- out
+|   `-- service
+|-- adapter
+|   |-- in
+|   |   `-- web
+|   `-- out
+|       |-- client
+|       |-- kafka
+|       |-- persistence
+|       `-- redis
+`-- shared
+    |-- config
+    |-- constants
+    |-- exception
+    |-- util
+    `-- validation
+        |-- annotation
+        `-- validator
+```
+
+| Package | Responsibility |
+| --- | --- |
+| `domain` | Core business models, domain rules, domain services, and domain events. This layer should not depend on Spring, database, Redis, Kafka, or HTTP concerns. |
+| `application` | Use case orchestration. Application services implement input ports and call output ports. |
+| `application/port/in` | Input boundaries used by inbound adapters, such as web controllers. |
+| `application/port/out` | Output boundaries implemented by outbound adapters, such as persistence, Redis, Kafka, or external clients. |
+| `adapter/in/web` | HTTP controllers, request/response DTOs, and web-specific mappers. |
+| `adapter/out/persistence` | Database entities, Spring Data repositories, persistence adapters, and persistence mappers. |
+| `adapter/out/redis` | Redis-specific adapters and cache implementations. |
+| `adapter/out/kafka` | Kafka producers, consumers, message DTOs, and message mappers. |
+| `adapter/out/client` | External service clients and their adapters. |
+| `shared/config` | Application-wide configuration, such as OpenAPI, security, CORS, Jackson, or infrastructure configuration. |
+| `shared/constants` | Technical constants that are reused across the application. |
+| `shared/exception` | Global exception handling and common technical error responses. |
+| `shared/util` | Small framework-independent utility helpers. Keep this package minimal. |
+| `shared/validation/annotation` | Custom validation annotations, such as `@ValidEnum`. |
+| `shared/validation/validator` | Implementations for custom validation annotations. |
+
+General dependency direction:
+
+```text
+adapter -> application -> domain
+```
+
+Adapters may depend on application ports. Application code may depend on domain code. Domain code should remain independent from framework and infrastructure code.
+
+## 2. Start Docker containers
 
 Start the required services with Docker Compose:
 
@@ -28,7 +84,7 @@ Stop the containers when they are no longer needed:
 docker compose down
 ```
 
-## 2. Run the application
+## 3. Run the application
 
 Run the application with Gradle:
 
@@ -42,7 +98,7 @@ On Windows PowerShell:
 .\gradlew.bat bootRun
 ```
 
-## 3. Run SonarQube analysis
+## 4. Run SonarQube analysis
 
 SonarQube runs locally at:
 
@@ -76,7 +132,7 @@ Current SonarQube project settings:
 - Project name: `Nook`
 - Host URL: `http://localhost:9000`
 
-## 4. URLs
+## 5. URLs
 
 Health check endpoint:
 
