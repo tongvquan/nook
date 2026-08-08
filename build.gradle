@@ -4,6 +4,7 @@ buildscript {
 	}
 	dependencies {
 		classpath "org.flywaydb:flyway-database-postgresql:11.17.0"
+		classpath "org.postgresql:postgresql:42.7.13" //use for entity gen
 		classpath "com.smartnews:jpa-entity-generator:0.99.9"
 	}
 }
@@ -12,7 +13,7 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '4.1.0'
 	id 'io.spring.dependency-management' version '1.1.7'
-	id 'com.diffplug.spotless' version '6.25.0'
+	id 'com.diffplug.spotless' version '8.9.0'
 	id("org.flywaydb.flyway") version "11.17.0"
 	id 'jacoco'
 	id 'org.sonarqube' version '7.3.1.8318'
@@ -38,12 +39,15 @@ java {
 // Spotless config
 spotless {
 	java {
-		// Format type
-		palantirJavaFormat()
 		target 'src/main/java/**/*.java', 'src/test/java/**/*.java'
-		trimTrailingWhitespace()
+
+		expandWildcardImports()
 		removeUnusedImports()
 		importOrder()
+
+		// Format type
+		palantirJavaFormat()
+		trimTrailingWhitespace()
 		endWithNewline()
 	}
 }

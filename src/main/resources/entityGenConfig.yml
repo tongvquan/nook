@@ -1,0 +1,23 @@
+jdbcSettings:
+  url: jdbc:postgresql://localhost:5432/nook
+  username: quan123
+  password: quan123
+  driverClassName: org.postgresql.Driver
+
+outputDirectory: D:/project/nook/src/main/java
+
+packageName: com.tongquan.nook.adapter.out.persistence.entity
+
+jsr305AnnotationsRequired: true
+
+useJakarta: true
+
+classNameRules:
+  - tableName: roles
+    className: RoleEntity
+
+  - tableName: users
+    className: UserEntity
+
+  - tableName: user_role
+    className: UserRoleEntity
