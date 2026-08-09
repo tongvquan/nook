@@ -73,6 +73,7 @@ dependencies {
 	implementation 'org.flywaydb:flyway-database-postgresql'
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.0")
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
 
 	testImplementation 'org.springframework.boot:spring-boot-starter-flyway-test'
 	testImplementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch-test'
@@ -86,12 +87,13 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
 	testCompileOnly 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-actuator-test'
+	testImplementation 'org.springframework.boot:spring-boot-starter-validation-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 	testAnnotationProcessor 'org.projectlombok:lombok'
 }
 
 flyway {
-	url = System.getenv('FLYWAY_URL') ?: System.getenv('SPRING_DATASOURCE_URL') ?: 'jdbc:postgresql://localhost:5434/nook'
+	url = System.getenv('FLYWAY_URL') ?: System.getenv('SPRING_DATASOURCE_URL') ?: 'jdbc:postgresql://localhost:5432/nook'
 	user = System.getenv('FLYWAY_USER') ?: System.getenv('SPRING_DATASOURCE_USERNAME') ?: 'quan123'
 	password = System.getenv('FLYWAY_PASSWORD') ?: System.getenv('SPRING_DATASOURCE_PASSWORD') ?: 'quan123'
 	locations = ['filesystem:src/main/resources/db/migration']
