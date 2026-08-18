@@ -24,7 +24,7 @@ entityGen {
 	configPath = 'src/main/resources/entityGenConfig.yml'
 }
 bootJar {
-	archiveFileName = "edu-vibe.jar"
+	archiveFileName = "nook.jar"
 }
 
 group = 'com.tongquan'
