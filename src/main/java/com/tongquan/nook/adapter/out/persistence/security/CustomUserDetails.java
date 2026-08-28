@@ -1,4 +1,4 @@
-package com.tongquan.nook.infrastructure.security;
+package com.tongquan.nook.adapter.out.persistence.security;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.tongquan.nook.domain.user.enums.UserStatus;

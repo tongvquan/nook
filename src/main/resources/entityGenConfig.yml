@@ -4,7 +4,7 @@ jdbcSettings:
   password: quan123
   driverClassName: org.postgresql.Driver
 
-outputDirectory: D:/project/nook/src/main/java
+outputDirectory: D:/my-prj/src/main/java
 
 packageName: com.tongquan.nook.adapter.out.persistence.entity
 
@@ -21,3 +21,12 @@ classNameRules:
 
   - tableName: user_role
     className: UserRoleEntity
+
+  - tableName: locations
+    className: LocationEntity
+
+  - tableName: activities
+    className: ActivityEntity
+
+  - tableName: activity_logs
+    className: ActivityLogEntity

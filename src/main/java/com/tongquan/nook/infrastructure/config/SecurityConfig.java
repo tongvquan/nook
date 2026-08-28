@@ -1,6 +1,7 @@
 package com.tongquan.nook.infrastructure.config;
 
-import com.tongquan.nook.infrastructure.security.CustomUserDetailService;
+import com.tongquan.nook.adapter.in.web.security.JwtToAuthenticationConverter;
+import com.tongquan.nook.adapter.out.persistence.security.CustomUserDetailService;
 import com.tongquan.nook.shared.constants.SecurityConstants;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -21,6 +22,7 @@ import org.springframework.security.web.SecurityFilterChain;
 @RequiredArgsConstructor
 public class SecurityConfig {
     private final CustomUserDetailService customUserDetailService;
+    private final JwtToAuthenticationConverter jwtToAuthenticationConverter;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -31,12 +33,8 @@ public class SecurityConfig {
                         .permitAll()
                         .anyRequest()
                         .authenticated())
-
-                //                .addFilterBefore(
-                //                        jwtAuthenticationFilter,
-                //                        UsernamePasswordAuthenticationFilter.class
-                //                )
-
+                .oauth2ResourceServer(
+                        oauth2 -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtToAuthenticationConverter)))
                 .build();
     }
 
