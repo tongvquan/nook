@@ -30,3 +30,6 @@ classNameRules:
 
   - tableName: activity_logs
     className: ActivityLogEntity
+
+  - tableName: refresh_tokens
+    className: RefreshTokenEntity

@@ -14,6 +14,6 @@ public class UserService implements UserUseCase {
 
     @Override
     public User findByUserName(String userName) {
-        return userPort.findByUserName(userName).orElseThrow(() -> new UsernameNotFoundException("123"));
+        return userPort.findByUserName(userName).orElseThrow(() -> new UsernameNotFoundException("auth.login.failed"));
     }
 }

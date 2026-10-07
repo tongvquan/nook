@@ -8,7 +8,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import java.math.BigDecimal;
 import lombok.Data;
 
 @Data
@@ -36,7 +35,7 @@ public class LocationEntity {
 
     @Nullable
     @Column(name = "\"longitude\"", nullable = true)
-    private BigDecimal longitude;
+    private java.math.BigDecimal longitude;
 
     @Nullable
     @Column(name = "\"radius_meters\"", nullable = true)
